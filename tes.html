@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Kelembaban Tanah pada Tanaman</title>
+
+    <!-- Menghubungkan CSS -->
+    <link rel="stylesheet" href="tes2.css"> <!-- Pastikan path sesuai -->
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+</head>
+<body>
+
+    <!-- Logo and Footer Text Section -->
+    <div class="logo-footer-container">
+        <div class="logo-container">
+            <img src="fotosiger.png" alt="Siger Logo">
+        </div>
+        <div class="footer-text">
+            LOTEK TUNA LAMSEL 2024
+        </div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-form" id="loginFormDiv">
+        <h2>Login Petani</h2>
+        <form id="loginForm">
+            <input type="text" id="nama" placeholder="Nama" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <!-- Monitoring Content (Initially hidden until login) -->
+    <div class="title-bar" id="monitoringTitle" style="display: none;">
+        <h1>Monitoring Kelembaban Tanah pada Tanaman</h1>
+        <div id="date-time">
+            <span id="current-date"></span> | <span id="current-time"></span>
+        </div>
+    </div>
+
+    <div class="content" id="monitoringContent" style="display: none;">
+        <!-- Sensor Section -->
+        <div class="sensor-section">
+            <h2>Data Sensor Kelembaban Tanah</h2>
+            <div class="sensor-card">
+                <h3>Kelembaban Tanah 1</h3>
+                <p id="sensor1">Data not available</p>
+            </div>
+            <div class="sensor-card">
+                <h3>Kelembaban Tanah 2</h3>
+                <p id="sensor2">Data not available</p>
+            </div>
+        </div>
+
+        <!-- Pump Status Section -->
+        <div class="pump-section">
+            <h2>Status Pompa</h2>
+            <div class="pump-card">
+                <h3>Pompa 1</h3>
+                <p id="pump1">Data not available</p>
+            </div>
+            <div class="pump-card">
+                <h3>Pompa 2</h3>
+                <p id="pump2">Data not available</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Monitoring System | &copy; 2024</p>
+    </footer>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7miUmJJU0yZmwVwdhKi7r4cvj2oZKg6I",
+            authDomain: "monitoringtanah-61f3f.firebaseapp.com",
+            databaseURL: "https://monitoringtanah-61f3f-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "monitoringtanah-61f3f",
+            storageBucket: "monitoringtanah-61f3f.appspot.com",
+            messagingSenderId: "974193767939",
+            appId: "1:974193767939:web:8f47c5fa0a2bf948bc0036"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Function to get sensor and pump data from Firebase
+        function getData() {
+            // Get moisture sensor data
+            db.ref("moisture1").on("value", function(snapshot) {
+                const moisture1Data = snapshot.val();
+                console.log("Moisture 1 Data:", moisture1Data); // Log untuk memeriksa data
+                if (moisture1Data !== null) {
+                    document.getElementById('sensor1').textContent = `Kelembaban Tanah 1: ${moisture1Data} %`;
+                } else {
+                    document.getElementById('sensor1').textContent = 'Kelembaban Tanah 1: Tidak tersedia';
+                }
+            });
+
+            db.ref("moisture2").on("value", function(snapshot) {
+                const moisture2Data = snapshot.val();
+                console.log("Moisture 2 Data:", moisture2Data); // Log untuk memeriksa data
+                if (moisture2Data !== null) {
+                    document.getElementById('sensor2').textContent = `Kelembaban Tanah 2: ${moisture2Data} %`;
+                } else {
+                    document.getElementById('sensor2').textContent = 'Kelembaban Tanah 2: Tidak tersedia';
+                }
+            });
+
+            // Get pump status
+            db.ref("statusPompa1").on("value", function(snapshot) {
+                const pump1Status = snapshot.val();
+                console.log("Pompa 1 Status:", pump1Status); // Log untuk memeriksa status pompa
+                if (pump1Status !== null) {
+                    document.getElementById('pump1').textContent = `Pompa 1: ${pump1Status}`;
+                } else {
+                    document.getElementById('pump1').textContent = 'Pompa 1: Tidak tersedia';
+                }
+            });
+
+            db.ref("statusPompa2").on("value", function(snapshot) {
+                const pump2Status = snapshot.val();
+                console.log("Pompa 2 Status:", pump2Status); // Log untuk memeriksa status pompa
+                if (pump2Status !== null) {
+                    document.getElementById('pump2').textContent = `Pompa 2: ${pump2Status}`;
+                } else {
+                    document.getElementById('pump2').textContent = 'Pompa 2: Tidak tersedia';
+                }
+            });
+        }
+
+        // Show login form and initialize Firebase interaction
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const nama = document.getElementById('nama').value;
+            const password = document.getElementById('password').value;
+
+            if (nama && password) {
+                // Simulate login check (You can add real authentication logic)
+                document.getElementById('loginFormDiv').style.display = 'none';
+                document.getElementById('monitoringTitle').style.display = 'block';
+                document.getElementById('monitoringContent').style.display = 'block';
+
+                // Start fetching sensor and pump data
+                getData();
+
+                // Display date and time
+                setInterval(function() {
+                    const currentDate = new Date();
+                    document.getElementById('current-date').textContent = currentDate.toLocaleDateString();
+                    document.getElementById('current-time').textContent = currentDate.toLocaleTimeString();
+                }, 1000);
+            } else {
+                alert("Nama dan password harus diisi!");
+            }
+        });
+    </script>
+
+</body>
+</html>
